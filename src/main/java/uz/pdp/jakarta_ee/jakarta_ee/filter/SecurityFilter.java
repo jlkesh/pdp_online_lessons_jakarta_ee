@@ -22,12 +22,10 @@ public class SecurityFilter implements Filter {
     private static final AuthUserDAO authUserDAO = new AuthUserDAO();
 
     private static final List<String> WHITE_LIST = List.of(
-/*
             "/book/list",
-*/
             "/auth/login",
-            "/auth/register"/*,
-            "/book/detail/.*",
+            "/auth/register",
+            "/activation.*" /*,
             "/storage/show",
             "/file/download"*/
     );

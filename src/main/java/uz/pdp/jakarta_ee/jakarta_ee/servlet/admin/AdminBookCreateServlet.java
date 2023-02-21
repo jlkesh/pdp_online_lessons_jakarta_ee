@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import org.w3c.dom.html.HTMLFieldSetElement;
 import uz.pdp.jakarta_ee.jakarta_ee.dao.BookDAO;
 import uz.pdp.jakarta_ee.jakarta_ee.dao.UploadDAO;
 import uz.pdp.jakarta_ee.jakarta_ee.entity.Book;

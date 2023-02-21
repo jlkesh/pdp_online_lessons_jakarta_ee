@@ -7,7 +7,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import uz.pdp.jakarta_ee.jakarta_ee.dao.AuthUserDAO;
+import uz.pdp.jakarta_ee.jakarta_ee.dao.AuthUserOTPDAO;
 import uz.pdp.jakarta_ee.jakarta_ee.entity.AuthUser;
+import uz.pdp.jakarta_ee.jakarta_ee.entity.AuthUserOTP;
+import uz.pdp.jakarta_ee.jakarta_ee.services.MailtrapService;
 import uz.pdp.jakarta_ee.jakarta_ee.utils.PasswordUtils;
 import uz.pdp.jakarta_ee.jakarta_ee.utils.StringUtils;
 
@@ -16,11 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebServlet(name = "AuthRegisterServlet", value = "/auth/register")
 public class AuthRegisterServlet extends HttpServlet {
 
     private final AuthUserDAO authUserDAO = new AuthUserDAO();
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -59,10 +65,21 @@ public class AuthRegisterServlet extends HttpServlet {
                 .childBuilder()
                 .email(email)
                 .role("USER")
-                .status(AuthUser.Status.ACTIVE) //
+                .status(AuthUser.Status.IN_ACTIVE)
                 .password(PasswordUtils.encode(password))
                 .build();
         authUserDAO.save(authUser);
+
+        CompletableFuture.runAsync(() -> {
+            AuthUserOTPDAO authUserOTPDAO = AuthUserOTPDAO.getInstance();
+            AuthUserOTP authUserOTP = AuthUserOTP
+                    .childBuilder()
+                    .userID(authUser.getId())
+                    .build();
+            authUserOTPDAO.save(authUserOTP);
+            MailtrapService.sendActivationEmail(authUserOTP.getUserID());
+        });
+
         response.sendRedirect("/auth/login");
     }
 }
